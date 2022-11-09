@@ -453,6 +453,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 			return deployInternal(
 				clusterSpecification,
 				"Flink per-job cluster",
+				//todo：获取YarnJobClusterEntrypoint,启动AM的入口
 				getYarnJobClusterEntrypoint(),
 				jobGraph,
 				detached);
@@ -487,6 +488,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 	 * @param jobGraph A job graph which is deployed with the Flink cluster, {@code null} if none
 	 * @param detached True if the cluster should be started in detached mode
 	 */
+	//todo:上传jar包和配置文件到HDFS
 	private ClusterClientProvider<ApplicationId> deployInternal(
 			ClusterSpecification clusterSpecification,
 			String applicationName,
@@ -513,6 +515,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		// ------------------ Check if the YARN ClusterClient has the requested resources --------------
 
 		// Create application via yarnClient
+		//todo：创建应用
 		final YarnClientApplication yarnApplication = yarnClient.createApplication();
 		final GetNewApplicationResponse appResponse = yarnApplication.getNewApplicationResponse();
 
@@ -693,6 +696,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 				configuration,
 				PluginUtils.createPluginManagerFromRootFolder(configuration));
 
+		//todo：初始化文件系统（HDFS）
 		final FileSystem fs = FileSystem.get(yarnConfiguration);
 
 		// hard coded check for the GoogleHDFS client because its not overriding the getScheme() method.
@@ -707,6 +711,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 
 		final List<Path> providedLibDirs = Utils.getQualifiedRemoteSharedPaths(configuration, yarnConfiguration);
 
+		//todo：上传文件的工具类
 		final YarnApplicationFileUploader fileUploader = YarnApplicationFileUploader.from(
 			fs,
 			getStagingDir(fs),
@@ -742,6 +747,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 
 		if (HighAvailabilityMode.isHighAvailabilityModeActivated(configuration)) {
 			// activate re-execution of failed applications
+			//todo：yarn重试次数默认为2
 			appContext.setMaxAppAttempts(
 					configuration.getInteger(
 							YarnConfigOptions.APPLICATION_ATTEMPTS.key(),
@@ -750,6 +756,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 			activateHighAvailabilitySupport(appContext);
 		} else {
 			// set number of application retries to 1 in the default case
+			//todo：不是高可用重试次数为1
 			appContext.setMaxAppAttempts(
 					configuration.getInteger(
 							YarnConfigOptions.APPLICATION_ATTEMPTS.key(),

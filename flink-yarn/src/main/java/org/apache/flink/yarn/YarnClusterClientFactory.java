@@ -52,6 +52,7 @@ public class YarnClusterClientFactory extends AbstractContainerizedClusterClient
 		return YarnDeploymentTarget.isValidYarnTarget(deploymentTarget);
 	}
 
+	//todo：启动yarn客户端
 	@Override
 	public YarnClusterDescriptor createClusterDescriptor(Configuration configuration) {
 		checkNotNull(configuration);
