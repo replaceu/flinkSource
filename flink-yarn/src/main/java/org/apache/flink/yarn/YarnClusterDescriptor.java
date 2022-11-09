@@ -680,7 +680,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 			}
 		}
 	}
-
+	//todo：封装AM参数，提交应用
 	private ApplicationReport startAppMaster(
 			Configuration configuration,
 			String applicationName,
@@ -847,6 +847,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		}
 
 		// Setup jar for ApplicationMaster
+		//todo:上传和配置ApplicationMaster的jar包：flink-dist*.jar
 		final YarnLocalResourceDescriptor localResourceDescFlinkJar = fileUploader.uploadFlinkDist(flinkJarPath);
 		classPathBuilder.append(localResourceDescFlinkJar.getResourceKey()).append(File.pathSeparator);
 
@@ -889,6 +890,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 			tmpConfigurationFile = File.createTempFile(appId + "-flink-conf.yaml", null);
 			BootstrapTools.writeConfiguration(configuration, tmpConfigurationFile);
 
+			//todo:上传flink配置文件
 			String flinkConfigKey = "flink-conf.yaml";
 			fileUploader.registerSingleLocalResource(
 				flinkConfigKey,
@@ -1481,7 +1483,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		final Optional<File> pluginsDir = PluginConfig.getPluginsDir();
 		pluginsDir.ifPresent(effectiveShipFiles::add);
 	}
-
+	//todo：封装ApplicationMaster参数和命令
 	ContainerLaunchContext setupApplicationMasterContainer(
 			String yarnClusterEntrypoint,
 			boolean hasKrb5,
@@ -1500,6 +1502,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		}
 
 		// Set up the container launch context for the application master
+		//todo:创建AM的容器启动上下文
 		ContainerLaunchContext amContainer = Records.newRecord(ContainerLaunchContext.class);
 
 		final  Map<String, String> startCommandValues = new HashMap<>();
