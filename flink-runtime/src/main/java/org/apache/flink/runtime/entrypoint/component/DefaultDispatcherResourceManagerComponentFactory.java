@@ -148,6 +148,7 @@ public class DefaultDispatcherResourceManagerComponentFactory implements Dispatc
 					dispatcherGatewayRetriever,
 					executor);
 
+			//todo:创建接收前端Rest请求的节点
 			webMonitorEndpoint = restEndpointFactory.createRestEndpoint(
 				configuration,
 				dispatcherGatewayRetriever,
@@ -163,6 +164,13 @@ public class DefaultDispatcherResourceManagerComponentFactory implements Dispatc
 
 			final String hostname = RpcUtils.getHostname(rpcService);
 
+			/**
+			 * todo：创建ResourceManager对象，返回的是new YarnResourceManager，
+			 * todo：调度过程
+			 *       AbstractDispatcherResourceManagerComponentFactory
+			 *       -> ActiveResourceManagerFactory
+			 *       -> YarnResourceManagerFactory
+			 */
 			resourceManager = resourceManagerFactory.createResourceManager(
 				configuration,
 				ResourceID.generate(),
@@ -192,6 +200,7 @@ public class DefaultDispatcherResourceManagerComponentFactory implements Dispatc
 				ioExecutor);
 
 			log.debug("Starting Dispatcher.");
+			//todo:创建dispatcherRunner对象并启动
 			dispatcherRunner = dispatcherRunnerFactory.createDispatcherRunner(
 				highAvailabilityServices.getDispatcherLeaderElectionService(),
 				fatalErrorHandler,
@@ -200,6 +209,7 @@ public class DefaultDispatcherResourceManagerComponentFactory implements Dispatc
 				rpcService,
 				partialDispatcherServices);
 
+			//todo:启动ResourceManager
 			log.debug("Starting ResourceManager.");
 			resourceManager.start();
 

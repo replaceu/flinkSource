@@ -214,9 +214,11 @@ public abstract class ClusterEntrypoint implements AutoCloseableAsync, FatalErro
 			// write host information into configuration
 			configuration.setString(JobManagerOptions.ADDRESS, commonRpcService.getAddress());
 			configuration.setInteger(JobManagerOptions.PORT, commonRpcService.getPort());
-
+			//todo:创建dispatcher,ResourceManager对象的工厂类
+			//todo:1.其中有从本地重新创建JobGraph的过程
 			final DispatcherResourceManagerComponentFactory dispatcherResourceManagerComponentFactory = createDispatcherResourceManagerComponentFactory(configuration);
 
+			//todo:2.Entry启动RpcService、HAService、BlobServer、HeartbeatServices、MetricRegistry、ExecutionGraphStore等
 			clusterComponent = dispatcherResourceManagerComponentFactory.create(
 				configuration,
 				ioExecutor,
