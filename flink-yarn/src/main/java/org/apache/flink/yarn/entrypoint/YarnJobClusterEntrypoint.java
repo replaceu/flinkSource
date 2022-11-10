@@ -64,6 +64,10 @@ public class YarnJobClusterEntrypoint extends JobClusterEntrypoint {
 	//  for a single Flink job.
 	// ------------------------------------------------------------------------
 
+	/**
+	 * per-job模式的AM container加载运行入口是YarnJobClusterEntryPoint中的main()方法
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		// startup checks and logging
 		EnvironmentInformation.logEnvironmentInfo(LOG, YarnJobClusterEntrypoint.class.getSimpleName(), args);
