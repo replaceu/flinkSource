@@ -88,6 +88,7 @@ public abstract class ResourceManagerFactory<T extends ResourceIDRetrievable> {
 			ResourceManagerRuntimeServices resourceManagerRuntimeServices,
 			Executor ioExecutor) throws Exception;
 
+	//todo:创建YarnResourceManager时，创建SlotManager
 	private ResourceManagerRuntimeServices createResourceManagerRuntimeServices(
 			Configuration configuration,
 			RpcService rpcService,

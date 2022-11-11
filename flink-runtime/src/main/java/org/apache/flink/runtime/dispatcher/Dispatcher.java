@@ -208,6 +208,7 @@ public abstract class Dispatcher extends PermanentlyFencedRpcEndpoint<Dispatcher
 	@Override
 	public void onStart() throws Exception {
 		try {
+			//todo:启动Dispatcher
 			startDispatcherServices();
 		} catch (Throwable t) {
 			final DispatcherException exception = new DispatcherException(String.format("Could not start the Dispatcher %s", getAddress()), t);
@@ -215,6 +216,7 @@ public abstract class Dispatcher extends PermanentlyFencedRpcEndpoint<Dispatcher
 			throw exception;
 		}
 
+		//todo:启动job
 		startRecoveredJobs();
 		this.dispatcherBootstrap = this.dispatcherBootstrapFactory.create(
 				getSelfGateway(DispatcherGateway.class),
@@ -457,6 +459,7 @@ public abstract class Dispatcher extends PermanentlyFencedRpcEndpoint<Dispatcher
 						new DefaultJobManagerJobMetricGroupFactory(jobManagerMetricGroup),
 						fatalErrorHandler,
 						initializationTimestamp);
+					//todo：启动JobManagerRunner
 					runner.start();
 					return runner;
 				} catch (Exception e) {

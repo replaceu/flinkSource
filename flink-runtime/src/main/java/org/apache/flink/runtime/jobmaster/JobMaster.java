@@ -794,10 +794,12 @@ public class JobMaster extends FencedRpcEndpoint<JobMasterId> implements JobMast
 
 		setNewFencingToken(newJobMasterId);
 
+		//todo：启动jobMaster
 		startJobMasterServices();
 
 		log.info("Starting execution of job {} ({}) under job master id {}.", jobGraph.getName(), jobGraph.getJobID(), newJobMasterId);
 
+		//todo：重新开始调度
 		resetAndStartScheduler();
 
 		return Acknowledge.get();

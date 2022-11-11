@@ -69,6 +69,7 @@ class DefaultDispatcherGatewayServiceFactory implements AbstractDispatcherLeader
 			throw new FlinkRuntimeException("Could not create the Dispatcher rpc endpoint.", e);
 		}
 
+		//todo:启动dispatcher
 		dispatcher.start();
 
 		return DefaultDispatcherGatewayService.from(dispatcher);
