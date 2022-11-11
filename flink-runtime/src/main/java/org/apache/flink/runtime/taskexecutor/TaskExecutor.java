@@ -369,6 +369,7 @@ public class TaskExecutor extends RpcEndpoint implements TaskExecutorGateway {
 		startRegistrationTimeout();
 	}
 
+	//todo：向ResourceManager注册
 	private void startTaskExecutorServices() throws Exception {
 		try {
 			// start by connecting to the ResourceManager
@@ -894,6 +895,7 @@ public class TaskExecutor extends RpcEndpoint implements TaskExecutorGateway {
 	// Slot allocation RPCs
 	// ----------------------------------------------------------------------
 
+	//todo：TaskManager提供Slot
 	@Override
 	public CompletableFuture<Acknowledge> requestSlot(
 		final SlotID slotId,
@@ -915,6 +917,7 @@ public class TaskExecutor extends RpcEndpoint implements TaskExecutorGateway {
 		}
 
 		try {
+			//todo：分配taskManager上的slot
 			allocateSlot(
 				slotId,
 				jobId,
@@ -1157,6 +1160,7 @@ public class TaskExecutor extends RpcEndpoint implements TaskExecutorGateway {
 			InstanceID taskExecutorRegistrationId,
 			ClusterInformation clusterInformation) {
 
+		//todo：向ResourceManager注册slot
 		final CompletableFuture<Acknowledge> slotReportResponseFuture = resourceManagerGateway.sendSlotReport(
 			getResourceID(),
 			taskExecutorRegistrationId,

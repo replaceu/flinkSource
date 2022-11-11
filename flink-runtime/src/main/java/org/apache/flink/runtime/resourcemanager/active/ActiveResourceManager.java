@@ -229,6 +229,7 @@ public class ActiveResourceManager<WorkerType extends ResourceIDRetrievable>
 	// ------------------------------------------------------------------------
 
 	private void requestNewWorker(WorkerResourceSpec workerResourceSpec) {
+		//todo：从配置中获取taskExecutor配置
 		final TaskExecutorProcessSpec taskExecutorProcessSpec =
 				TaskExecutorProcessUtils.processSpecFromWorkerResourceSpec(flinkConfig, workerResourceSpec);
 		final int pendingCount = pendingWorkerCounter.increaseAndGet(workerResourceSpec);
@@ -237,6 +238,7 @@ public class ActiveResourceManager<WorkerType extends ResourceIDRetrievable>
 				workerResourceSpec,
 				pendingCount);
 
+		//申请资源
 		CompletableFuture<WorkerType> requestResourceFuture = resourceManagerDriver.requestResource(taskExecutorProcessSpec);
 		FutureUtils.assertNoException(
 				requestResourceFuture.handle((worker, exception) -> {

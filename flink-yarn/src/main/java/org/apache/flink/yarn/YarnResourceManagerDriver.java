@@ -152,6 +152,7 @@ public class YarnResourceManagerDriver extends AbstractResourceManagerDriver<Yar
 	protected void initializeInternal() throws Exception {
 		final YarnContainerEventHandler yarnContainerEventHandler = new YarnContainerEventHandler();
 		try {
+			//todo：创建和启动Yarn的resourceManager客户端
 			resourceManagerClient = yarnResourceManagerClientFactory.createResourceManagerClient(
 				yarnHeartbeatIntervalMillis,
 				yarnContainerEventHandler);
@@ -168,6 +169,7 @@ public class YarnResourceManagerDriver extends AbstractResourceManagerDriver<Yar
 			throw new ResourceManagerException("Could not start resource manager client.", e);
 		}
 
+		//todo：创建和启动yarn的nodeManager的客户端
 		nodeManagerClient = yarnNodeManagerClientFactory.createNodeManagerClient(yarnContainerEventHandler);
 		nodeManagerClient.init(yarnConfig);
 		nodeManagerClient.start();

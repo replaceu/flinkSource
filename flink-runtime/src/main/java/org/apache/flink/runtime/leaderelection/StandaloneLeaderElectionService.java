@@ -35,6 +35,7 @@ public class StandaloneLeaderElectionService implements LeaderElectionService {
 
 	private LeaderContender contender = null;
 
+	//todo: 启动slotManager
 	@Override
 	public void start(LeaderContender newContender) throws Exception {
 		if (contender != null) {
