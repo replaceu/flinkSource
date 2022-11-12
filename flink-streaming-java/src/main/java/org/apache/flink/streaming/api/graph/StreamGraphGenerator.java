@@ -360,6 +360,10 @@ public class StreamGraphGenerator {
 	 * <p>This checks whether we already transformed it and exits early in that case. If not it
 	 * delegates to one of the transformation specific methods.
 	 */
+	/**
+	 * todo:对每个 transformation 进行转换，转换成 StreamGraph 中的 StreamNode 和 StreamEdge
+	 *  返回值为该 transform 的 id 集合，通常大小为 1 个（除 FeedbackTransformation）
+	 */
 	private Collection<Integer> transform(Transformation<?> transform) {
 		if (alreadyTransformed.containsKey(transform)) {
 			return alreadyTransformed.get(transform);

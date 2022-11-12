@@ -87,6 +87,17 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * </ul>
  * The running state can be queried in a RPC method handler or in the main thread by calling {@link #isRunning()} method.
  */
+
+/**
+ * todo:RpcEndpoint 是通信终端，提供 RPC 服务组件的生命周期管理(start、stop)。每个
+ *  RpcEndpoint对应了一个路径（endpointId和actorSystem共同确定），每个路径对应一个Actor
+ *  构造的时候调用rpcService.startServer()启动RpcServer，进入可以接收处理请求的状态，
+ *  最后将 RpcServer 绑定到主线程上真正执行起来。
+ *  在 RpcEndpoint 中还定义了一些方法如 runAsync(Runnable)、callAsync(Callable, Time)方
+ *  法来执行 Rpc 调用，值得注意的是在 Flink 的设计中，对于同一个 Endpoint，所有的调用都
+ *  运行在主线程，因此不会有并发问题，当启动 RpcEndpoint/进行 Rpc 调用时，其会委托
+ *  RcpServer 进行处理。
+ */
 public abstract class RpcEndpoint implements RpcGateway, AutoCloseableAsync {
 
 	protected final Logger log = LoggerFactory.getLogger(getClass());
@@ -94,6 +105,13 @@ public abstract class RpcEndpoint implements RpcGateway, AutoCloseableAsync {
 	// ------------------------------------------------------------------------
 
 	/** RPC service to be used to start the RPC server and to obtain rpc gateways. */
+	/**
+	 * todo:
+	 *  RpcService是 Rpc服务的接口，其主要作用如下：
+	 *  根据提供的 RpcEndpoint 来启动和停止 RpcServer（Actor）；
+	 *  根据提供的地址连接到(对方的)RpcServer，并返回一个 RpcGateway；
+	 *  延迟/立刻调度 Runnable、Callable；
+	 */
 	private final RpcService rpcService;
 
 	/** Unique identifier for this rpc endpoint. */
@@ -123,11 +141,14 @@ public abstract class RpcEndpoint implements RpcGateway, AutoCloseableAsync {
 	 * @param endpointId Unique identifier for this endpoint
 	 */
 	protected RpcEndpoint(final RpcService rpcService, final String endpointId) {
+		//todo:保存 rpcService 和 endpointId
 		this.rpcService = checkNotNull(rpcService, "rpcService");
 		this.endpointId = checkNotNull(endpointId, "endpointId");
 
+		//todo:通过RpcService启动RpcServer
 		this.rpcServer = rpcService.startServer(this);
 
+		//todo:主线程执行器，所有调用在主线程中串行执行
 		this.mainThreadExecutor = new MainThreadExecutor(rpcServer, this::validateRunsInMainThread);
 	}
 

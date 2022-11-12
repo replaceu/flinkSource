@@ -87,6 +87,12 @@ import static org.apache.flink.util.Preconditions.checkState;
  * Akka based {@link RpcService} implementation. The RPC service starts an Akka actor to receive
  * RPC invocations from a {@link RpcGateway}.
  */
+
+/**
+ * todo:在 Flink 中实现类为 AkkaRpcService，是 Akka 的 ActorSystem 的封装，基本可以理
+ *  解成 ActorSystem 的一个适配器。在 ClusterEntrypoint（JobMaster）和 TaskManagerRunner
+ *  （TaskExecutor）启动的过程中初始化并启动
+ */
 @ThreadSafe
 public class AkkaRpcService implements RpcService {
 
@@ -224,6 +230,7 @@ public class AkkaRpcService implements RpcService {
 
 		LOG.info("Starting RPC endpoint for {} at {} .", rpcEndpoint.getClass().getName(), actorRef.path());
 
+		//todo:保存了ActorRef 到 RpcEndpoint的映射关系
 		final String akkaAddress = AkkaUtils.getAkkaURL(actorSystem, actorRef);
 		final String hostname;
 		Option<String> host = actorRef.path().address().host();
@@ -242,6 +249,8 @@ public class AkkaRpcService implements RpcService {
 
 		if (rpcEndpoint instanceof FencedRpcEndpoint) {
 			// a FencedRpcEndpoint needs a FencedAkkaInvocationHandler
+
+			//todo：RPC 的请求在客户端被封装成 RpcInvocation 对象
 			akkaInvocationHandler = new FencedAkkaInvocationHandler<>(
 				akkaAddress,
 				hostname,
@@ -269,6 +278,11 @@ public class AkkaRpcService implements RpcService {
 		// code is loaded dynamically (for example from an OSGI bundle) through a custom ClassLoader
 		ClassLoader classLoader = getClass().getClassLoader();
 
+		/**
+		 * todo：生成 RpcServer 对象，而后对该 server 的调用都会进入 Handler 的 invoke 方法处理，handler 实现了多个接口的方法
+		 *  生成一个包含这些接口的代理，将调用转发到 InvocationHandler
+		 */
+
 		@SuppressWarnings("unchecked")
 		RpcServer server = (RpcServer) Proxy.newProxyInstance(
 			classLoader,
@@ -278,6 +292,12 @@ public class AkkaRpcService implements RpcService {
 		return server;
 	}
 
+	/**
+	 * todo:其会根据 RpcEndpoint类型（FencedRpcEndpoint 或其他）来创建不同的 AkkaRpcActor（FencedAkkaRpcActor 或AkkaRpcActor）
+	 * @param rpcEndpoint
+	 * @param <C>
+	 * @return
+	 */
 	private <C extends RpcEndpoint & RpcGateway> SupervisorActor.ActorRegistration registerAkkaRpcActor(C rpcEndpoint) {
 		final Class<? extends AbstractActor> akkaRpcActorType;
 
@@ -306,6 +326,7 @@ public class AkkaRpcService implements RpcService {
 					rpcEndpoint.getEndpointId()),
 				cause));
 
+			//todo:将RpcEndpoint和AkkaRpcActor对应的ActorRef保存起来
 			actors.put(actorRegistration.getActorRef(), rpcEndpoint);
 
 			return actorRegistration;

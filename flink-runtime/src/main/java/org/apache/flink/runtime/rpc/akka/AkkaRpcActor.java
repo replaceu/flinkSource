@@ -80,6 +80,11 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  *
  * @param <T> Type of the {@link RpcEndpoint}
  */
+
+/**
+ * todo:AkkaRpcActor是消息接收的入口，AkkaRpcActor 在 RpcEndpoint 中构造生成，负责将消息交给不同的方法进行处理。
+ * @param <T>
+ */
 class AkkaRpcActor<T extends RpcEndpoint & RpcGateway> extends AbstractActor {
 
 	protected final Logger log = LoggerFactory.getLogger(getClass());
@@ -210,14 +215,17 @@ class AkkaRpcActor<T extends RpcEndpoint & RpcGateway> extends AbstractActor {
 		}
 	}
 
+	//todo:处理握手消息
 	private void handleHandshakeMessage(RemoteHandshakeMessage handshakeMessage) {
 		if (!isCompatibleVersion(handshakeMessage.getVersion())) {
+			// 版本不兼容异常处理
 			sendErrorIfSender(new AkkaHandshakeException(
 				String.format(
 					"Version mismatch between source (%s) and target (%s) rpc component. Please verify that all components have the same version.",
 					handshakeMessage.getVersion(),
 					getVersion())));
 		} else if (!isGatewaySupported(handshakeMessage.getRpcGateway())) {
+			// RpcGateway 不匹配异常处理
 			sendErrorIfSender(new AkkaHandshakeException(
 				String.format(
 					"The rpc endpoint does not support the gateway %s.",

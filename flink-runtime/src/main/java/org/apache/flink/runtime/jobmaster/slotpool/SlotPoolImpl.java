@@ -543,6 +543,7 @@ public class SlotPoolImpl implements SlotPool {
 
 	/**
 	 * Tries to fulfill with the given allocated slot a pending slot request or add the
+	 *
 	 * allocated slot to the set of available slots if no matching request is available.
 	 *
 	 * @param allocatedSlot which shall be returned
@@ -709,6 +710,7 @@ public class SlotPoolImpl implements SlotPool {
 			taskManagerGateway);
 
 		// use the slot to fulfill pending request, in requested order
+		//todo:按照请求顺序，使用slot来完成挂起的请求
 		tryFulfillSlotRequestOrMakeAvailable(allocatedSlot);
 
 		// we accepted the request in any case. slot will be released after it idled for

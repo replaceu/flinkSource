@@ -953,6 +953,7 @@ public class TaskExecutor extends RpcEndpoint implements TaskExecutorGateway {
 		}
 
 		if (job.isConnected()) {
+			//todo:连接上job，提供slot给 jobManager
 			offerSlotsToJobManager(jobId);
 		}
 

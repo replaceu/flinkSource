@@ -118,12 +118,15 @@ class AkkaInvocationHandler implements InvocationHandler, AkkaBasedEndpoint, Rpc
 
 		Object result;
 
+		//todo：判断方法所属的class
 		if (declaringClass.equals(AkkaBasedEndpoint.class) ||
 			declaringClass.equals(Object.class) ||
 			declaringClass.equals(RpcGateway.class) ||
 			declaringClass.equals(StartStoppable.class) ||
 			declaringClass.equals(MainThreadExecutable.class) ||
 			declaringClass.equals(RpcServer.class)) {
+
+			//todo:RPC的请求在客户端封装成RpcInvocation对象，以Akka消息的形式发送
 			result = method.invoke(this, args);
 		} else if (declaringClass.equals(FencedRpcGateway.class)) {
 			throw new UnsupportedOperationException("AkkaInvocationHandler does not support the call FencedRpcGateway#" +
@@ -131,6 +134,7 @@ class AkkaInvocationHandler implements InvocationHandler, AkkaBasedEndpoint, Rpc
 				"fencing token. Please use RpcService#connect(RpcService, F, Time) with F being the fencing token to " +
 				"retrieve a properly FencedRpcGateway.");
 		} else {
+			//todo:非Akka类型的，进入rpc调用,代码中判断所属的类，如果是RPC方法，则调用invokeRpc方法。将方法调用封装为RPCInvocation消息
 			result = invokeRpc(method, args);
 		}
 
@@ -209,6 +213,7 @@ class AkkaInvocationHandler implements InvocationHandler, AkkaBasedEndpoint, Rpc
 		final Object result;
 
 		if (Objects.equals(returnType, Void.TYPE)) {
+			//todo：如果是不返回消息类型，使用tell方法
 			tell(rpcInvocation);
 
 			result = null;
@@ -219,6 +224,7 @@ class AkkaInvocationHandler implements InvocationHandler, AkkaBasedEndpoint, Rpc
 			final Throwable callStackCapture = captureAskCallStack ? new Throwable() : null;
 
 			// execute an asynchronous call
+			//todo：如果是要返回消息类型，使用ask方法,异步调用等待返回
 			final CompletableFuture<?> resultFuture = ask(rpcInvocation, futureTimeout);
 
 			final CompletableFuture<Object> completableFuture = new CompletableFuture<>();
@@ -231,9 +237,11 @@ class AkkaInvocationHandler implements InvocationHandler, AkkaBasedEndpoint, Rpc
 			});
 
 			if (Objects.equals(returnType, CompletableFuture.class)) {
+				// todo:如果返回值是 CompletableFuture 类型，不用阻塞等待返回，直接返回 Future 对象
 				result = completableFuture;
 			} else {
 				try {
+					//todo:如果返回值不是 CompletableFuture 类型，阻塞等待返回
 					result = completableFuture.get(futureTimeout.getSize(), futureTimeout.getUnit());
 				} catch (ExecutionException ee) {
 					throw new RpcException("Failure while obtaining synchronous RPC result.", ExceptionUtils.stripExecutionException(ee));

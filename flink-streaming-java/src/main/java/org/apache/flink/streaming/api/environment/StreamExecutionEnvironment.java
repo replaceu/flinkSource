@@ -1988,6 +1988,12 @@ public class StreamExecutionEnvironment {
 	 * @param clearTransformations Whether or not to clear previously registered transformations
 	 * @return The streamgraph representing the transformations
 	 */
+	/**
+	 *todo:调用用户代码中的 StreamExecutionEnvironment.execute()
+	 * -> execute(getJobName())
+	 * -> execute(getStreamGraph(jobName))
+	 * -> getStreamGraph(jobName, true)
+	 */
 	@Internal
 	public StreamGraph getStreamGraph(String jobName, boolean clearTransformations) {
 		StreamGraph streamGraph = getStreamGraphGenerator().setJobName(jobName).generate();
