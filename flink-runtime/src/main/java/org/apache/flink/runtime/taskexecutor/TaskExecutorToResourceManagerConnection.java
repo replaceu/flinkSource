@@ -79,6 +79,7 @@ public class TaskExecutorToResourceManagerConnection
 			taskExecutorRegistration);
 	}
 
+	//todo：注册成功调用onRegistrationSuccess
 	@Override
 	protected void onRegistrationSuccess(TaskExecutorRegistrationSuccess success) {
 		log.info("Successful registration at resource manager {} under registration id {}.",
@@ -98,6 +99,9 @@ public class TaskExecutorToResourceManagerConnection
 	//  Utilities
 	// ------------------------------------------------------------------------
 
+	/**
+	 * todo：开始注册 newRegistration. startRegistration()会调用 invokeRegistration()
+	 */
 	private static class ResourceManagerRegistration
 			extends RetryingRegistration<ResourceManagerId, ResourceManagerGateway, TaskExecutorRegistrationSuccess> {
 

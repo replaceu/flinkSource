@@ -447,7 +447,9 @@ public class SlotManagerImpl implements SlotManager {
 		LOG.debug("Registering TaskManager {} under {} at the SlotManager.", taskExecutorConnection.getResourceID().getStringWithMetadata(), taskExecutorConnection.getInstanceID());
 
 		// we identify task managers by their instance id
+		//todo：通过实例id判断某个taskmanager是否已经注册过
 		if (taskManagerRegistrations.containsKey(taskExecutorConnection.getInstanceID())) {
+			//todo：报告已注册过的taskmanager的slot分配情况，更新slot情况
 			reportSlotStatus(taskExecutorConnection.getInstanceID(), initialSlotReport);
 			return false;
 		} else {
@@ -472,6 +474,7 @@ public class SlotManagerImpl implements SlotManager {
 
 			// next register the new slots
 			for (SlotStatus slotStatus : initialSlotReport) {
+				//todo：注册新的slot，根据slot请求进行分配
 				registerSlot(
 					slotStatus.getSlotID(),
 					slotStatus.getAllocationID(),
@@ -663,6 +666,7 @@ public class SlotManagerImpl implements SlotManager {
 	 * @param resourceProfile of the slot
 	 * @param taskManagerConnection to communicate with the remote task manager
 	 */
+	//todo：ResourceManager分配 Slot
 	private void registerSlot(
 			SlotID slotId,
 			AllocationID allocationId,
@@ -672,6 +676,7 @@ public class SlotManagerImpl implements SlotManager {
 
 		if (slots.containsKey(slotId)) {
 			// remove the old slot first
+			//todo:移除旧slot
 			removeSlot(
 				slotId,
 				new SlotManagerException(
@@ -680,6 +685,7 @@ public class SlotManagerImpl implements SlotManager {
 						slotId)));
 		}
 
+		//todo：创建和注册TaskManager的slot
 		final TaskManagerSlot slot = createAndRegisterTaskManagerSlot(slotId, resourceProfile, taskManagerConnection);
 
 		final PendingTaskManagerSlot pendingTaskManagerSlot;
@@ -696,6 +702,7 @@ public class SlotManagerImpl implements SlotManager {
 			pendingSlots.remove(pendingTaskManagerSlot.getTaskManagerSlotId());
 			final PendingSlotRequest assignedPendingSlotRequest = pendingTaskManagerSlot.getAssignedPendingSlotRequest();
 
+			//todo：分配slot给请求
 			if (assignedPendingSlotRequest == null) {
 				handleFreeSlot(slot);
 			} else {
@@ -881,6 +888,7 @@ public class SlotManagerImpl implements SlotManager {
 		Optional<PendingTaskManagerSlot> pendingTaskManagerSlotOptional = findFreeMatchingPendingTaskManagerSlot(resourceProfile);
 
 		if (!pendingTaskManagerSlotOptional.isPresent()) {
+			//todo：ResourceManager申请资源
 			pendingTaskManagerSlotOptional = allocateResource(resourceProfile);
 		}
 
@@ -949,6 +957,7 @@ public class SlotManagerImpl implements SlotManager {
 		return allocatedWorkerNum;
 	}
 
+	//todo：ResourceManager申请资源
 	private Optional<PendingTaskManagerSlot> allocateResource(ResourceProfile requestedSlotResourceProfile) {
 		final int numRegisteredSlots =  getNumberRegisteredSlots();
 		final int numPendingSlots = getNumberPendingTaskManagerSlots();
@@ -1264,9 +1273,11 @@ public class SlotManagerImpl implements SlotManager {
 			int slotsDiff = redundantTaskManagerNum * numSlotsPerWorker - freeSlots.size();
 			if (freeSlots.size() == slots.size()) {
 				// No need to keep redundant taskManagers if no job is running.
+				//todo:如果没有job在运行，释放taskManager
 				releaseTaskExecutors(timedOutTaskManagers, timedOutTaskManagers.size());
 			} else if (slotsDiff > 0) {
 				// Keep enough redundant taskManagers from time to time.
+				//todo:保证随时有足够的taskManager
 				int requiredTaskManagers = MathUtils.divideRoundUp(slotsDiff, numSlotsPerWorker);
 				allocateRedundantTaskManagers(requiredTaskManagers);
 			} else {

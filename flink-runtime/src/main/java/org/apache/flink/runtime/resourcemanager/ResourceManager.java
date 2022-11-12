@@ -227,6 +227,7 @@ public abstract class ResourceManager<WorkerType extends ResourceIDRetrievable>
 		try {
 			leaderElectionService = highAvailabilityServices.getResourceManagerLeaderElectionService();
 
+			//todo：创建Yarn的RM和NM的客户端
 			initialize();
 
 			leaderElectionService.start(this);
@@ -450,6 +451,7 @@ public abstract class ResourceManager<WorkerType extends ResourceIDRetrievable>
 		closeJobManagerConnection(jobId, cause);
 	}
 
+	//todo：由ResourceManager里的SlotManager处理slot请求
 	@Override
 	public CompletableFuture<Acknowledge> requestSlot(
 			JobMasterId jobMasterId,

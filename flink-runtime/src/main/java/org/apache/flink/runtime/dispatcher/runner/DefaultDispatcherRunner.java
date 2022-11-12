@@ -101,6 +101,7 @@ public final class DefaultDispatcherRunner implements DispatcherRunner, LeaderCo
 	// Leader election
 	// ---------------------------------------------------------------
 
+	//todo：leader选举
 	@Override
 	public void grantLeadership(UUID leaderSessionID) {
 		runActionIfRunning(() -> startNewDispatcherLeaderProcess(leaderSessionID));

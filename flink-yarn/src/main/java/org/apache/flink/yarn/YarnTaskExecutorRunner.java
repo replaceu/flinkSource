@@ -62,6 +62,8 @@ public class YarnTaskExecutorRunner {
 	 *
 	 * @param args The command line arguments.
 	 */
+
+	//todo：taskManager启动
 	public static void main(String[] args) {
 		EnvironmentInformation.logEnvironmentInfo(LOG, "YARN TaskExecutor runner", args);
 		SignalHandler.register(LOG);

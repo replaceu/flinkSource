@@ -39,6 +39,7 @@ public class DefaultDispatcherRunnerFactory implements DispatcherRunnerFactory {
 		this.dispatcherLeaderProcessFactoryFactory = dispatcherLeaderProcessFactoryFactory;
 	}
 
+	//todo：创建并启动Dispatcher
 	@Override
 	public DispatcherRunner createDispatcherRunner(
 			LeaderElectionService leaderElectionService,
