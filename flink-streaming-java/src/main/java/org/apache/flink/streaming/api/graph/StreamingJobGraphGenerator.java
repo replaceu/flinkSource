@@ -121,15 +121,21 @@ public class StreamingJobGraphGenerator {
 
 	private final StreamGraph streamGraph;
 
+	//id->JobVertex
 	private final Map<Integer, JobVertex> jobVertices;
 	private final JobGraph jobGraph;
+	//todo：已经构建的JobVertex的id的集合
 	private final Collection<Integer> builtVertices;
 
+	//todo：物理边集合（排除了 chain 内部的边）, 按创建顺序排序
 	private final List<StreamEdge> physicalEdgesInOrder;
 
+	//todo：保存 chain 信息，部署时用来构建 OperatorChain，startNodeId -> (currentNodeId -> StreamConfig)
 	private final Map<Integer, Map<Integer, StreamConfig>> chainedConfigs;
 
+	//todo：所有节点的配置信息，id -> StreamConfig
 	private final Map<Integer, StreamConfig> vertexConfigs;
+	//todo：保存每个节点的名字，id -> chainedName
 	private final Map<Integer, String> chainedNames;
 
 	private final Map<Integer, ResourceSpec> chainedMinResources;
@@ -140,6 +146,7 @@ public class StreamingJobGraphGenerator {
 	private final StreamGraphHasher defaultStreamGraphHasher;
 	private final List<StreamGraphHasher> legacyStreamGraphHashers;
 
+	//todo：构造函数，入参只有 StreamGraph
 	private StreamingJobGraphGenerator(StreamGraph streamGraph, @Nullable JobID jobID) {
 		this.streamGraph = streamGraph;
 		this.defaultStreamGraphHasher = new StreamGraphHasherV2();
@@ -158,15 +165,20 @@ public class StreamingJobGraphGenerator {
 		jobGraph = new JobGraph(jobID, streamGraph.getJobName());
 	}
 
+	//todo：核心逻辑，根据StreamGraph，生成JobGraph
 	private JobGraph createJobGraph() {
 		preValidate();
 
 		// make sure that all vertices start immediately
+		//todo：streaming 模式下，调度模式是所有节点（vertices）一起启动
 		jobGraph.setScheduleMode(streamGraph.getScheduleMode());
 		jobGraph.enableApproximateLocalRecovery(streamGraph.getCheckpointConfig().isApproximateLocalRecoveryEnabled());
 
 		// Generate deterministic hashes for the nodes in order to identify them across
 		// submission iff they didn't change.
+		/*todo：广度优先遍历 StreamGraph 并且为每个 SteamNode 生成 hash id，
+		*   保证如果提交的拓扑没有改变，则每次生成的 hash 都是一样的
+		 */
 		Map<Integer, byte[]> hashes = defaultStreamGraphHasher.traverseStreamGraphAndGenerateHashes(streamGraph);
 
 		// Generate legacy version hashes for backwards compatibility
@@ -175,9 +187,16 @@ public class StreamingJobGraphGenerator {
 			legacyHashes.add(hasher.traverseStreamGraphAndGenerateHashes(streamGraph));
 		}
 
+		//todo：最重要的函数，生成 JobVertex，JobEdge 等，并尽可能地将多个节点 chain 在一起
 		setChaining(hashes, legacyHashes);
 
+		/*todo： 将每个 JobVertex 的入边集合也序列化到该 JobVertex 的 StreamConfig 中
+		*  (出边集合已经在 setChaining 的时候写入了)
+		*/
 		setPhysicalEdges();
+
+		/**todo：根据 group name，为每个 JobVertex 指定所属的 SlotSharingGroup
+		 *  以及针对 Iteration 的头尾设置 CoLocationGroup*/
 
 		setSlotSharingAndCoLocation();
 
@@ -188,6 +207,7 @@ public class StreamingJobGraphGenerator {
 			id -> streamGraph.getStreamNode(id).getManagedMemoryOperatorScopeUseCaseWeights(),
 			id -> streamGraph.getStreamNode(id).getManagedMemorySlotScopeUseCases());
 
+		//todo：配置 checkpoint
 		configureCheckpointing();
 
 		jobGraph.setSavepointRestoreSettings(streamGraph.getSavepointRestoreSettings());
@@ -196,6 +216,7 @@ public class StreamingJobGraphGenerator {
 
 		// set the ExecutionConfig last when it has been finalized
 		try {
+			//todo：将 StreamGraph 的 ExecutionConfig 序列化到 JobGraph 的配置中
 			jobGraph.setExecutionConfig(streamGraph.getExecutionConfig());
 		}
 		catch (IOException e) {
@@ -315,6 +336,8 @@ public class StreamingJobGraphGenerator {
 	 *
 	 * <p>This will recursively create all {@link JobVertex} instances.
 	 */
+
+	//todo：从source开始建立 node chains
 	private void setChaining(Map<Integer, byte[]> hashes, List<Map<Integer, byte[]>> legacyHashes) {
 		// we separate out the sources that run as inputs to another operator (chained inputs)
 		// from the sources that needs to run as the main (head) operator.

@@ -498,6 +498,11 @@ public class StreamGraph implements Pipeline {
 
 	}
 
+	/**
+	 * todo：该函数首先会对该 transform 的上游 transform 进行递归转换，确保上游的都已经完成
+	 *  了转化。然后通过 transform 构造出 StreamNode，最后与上游的 transform 进行连接，构造
+	 *  出 StreamNode
+	 */
 	private void addEdgeInternal(Integer upStreamVertexID,
 			Integer downStreamVertexID,
 			int typeNumber,
@@ -506,6 +511,7 @@ public class StreamGraph implements Pipeline {
 			OutputTag outputTag,
 			ShuffleMode shuffleMode) {
 
+		//todo：当上游是侧输出时，递归调用，并传入侧输出信息
 		if (virtualSideOutputNodes.containsKey(upStreamVertexID)) {
 			int virtualId = upStreamVertexID;
 			upStreamVertexID = virtualSideOutputNodes.get(virtualId).f0;
@@ -513,6 +519,7 @@ public class StreamGraph implements Pipeline {
 				outputTag = virtualSideOutputNodes.get(virtualId).f1;
 			}
 			addEdgeInternal(upStreamVertexID, downStreamVertexID, typeNumber, partitioner, null, outputTag, shuffleMode);
+			//todo：当上游是 partition 时，递归调用，并传入 partitioner 信息
 		} else if (virtualPartitionNodes.containsKey(upStreamVertexID)) {
 			int virtualId = upStreamVertexID;
 			upStreamVertexID = virtualPartitionNodes.get(virtualId).f0;
@@ -522,17 +529,20 @@ public class StreamGraph implements Pipeline {
 			shuffleMode = virtualPartitionNodes.get(virtualId).f2;
 			addEdgeInternal(upStreamVertexID, downStreamVertexID, typeNumber, partitioner, outputNames, outputTag, shuffleMode);
 		} else {
+			//todo：真正构建StreamEdge
 			StreamNode upstreamNode = getStreamNode(upStreamVertexID);
 			StreamNode downstreamNode = getStreamNode(downStreamVertexID);
 
 			// If no partitioner was specified and the parallelism of upstream and downstream
 			// operator matches use forward partitioning, use rebalance otherwise.
+			//todo:未指定 partitioner 的话，会为其选择 forward 或 reBalance 分区。
 			if (partitioner == null && upstreamNode.getParallelism() == downstreamNode.getParallelism()) {
 				partitioner = new ForwardPartitioner<Object>();
 			} else if (partitioner == null) {
 				partitioner = new RebalancePartitioner<Object>();
 			}
 
+			//todo:健康检查，forward 分区必须要上下游的并发度一致
 			if (partitioner instanceof ForwardPartitioner) {
 				if (upstreamNode.getParallelism() != downstreamNode.getParallelism()) {
 					throw new UnsupportedOperationException("Forward partitioning does not allow " +
@@ -546,9 +556,11 @@ public class StreamGraph implements Pipeline {
 				shuffleMode = ShuffleMode.UNDEFINED;
 			}
 
+			//todo:创建StreamEdge
 			StreamEdge edge = new StreamEdge(upstreamNode, downstreamNode, typeNumber,
 				partitioner, outputTag, shuffleMode);
 
+			//todo：将该 StreamEdge 添加到上游的输出，下游的输入
 			getStreamNode(edge.getSourceId()).addOutEdge(edge);
 			getStreamNode(edge.getTargetId()).addInEdge(edge);
 		}

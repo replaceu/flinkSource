@@ -72,7 +72,14 @@ public class PartitionTransformationTranslator<OUT>
 		List<Integer> resultIds = new ArrayList<>();
 
 		for (Integer inputId: context.getStreamNodeIds(input)) {
+			//todo：生成一个新的虚拟id
 			final int virtualId = Transformation.getNewNodeId();
+			//todo： 添加一个虚拟分区节点，不会生成 StreamNode
+			/**
+			 * todo：对 partition 的转换没有生成具体的 StreamNode 和 StreamEdge，而是添加一个虚节点。
+			 *  当 partition 的下游 transform（如 map）添加 edge 时（调用 StreamGraph.addEdge），会把
+			 *  partition 信息写入到 edge 中。
+			 */
 			streamGraph.addVirtualPartitionNode(
 					inputId,
 					virtualId,
