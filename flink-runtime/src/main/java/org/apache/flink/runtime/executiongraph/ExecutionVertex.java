@@ -349,6 +349,7 @@ public class ExecutionVertex implements AccessExecutionVertex, Archiveable<Archi
 
 	public void connectSource(int inputNumber, IntermediateResult source, JobEdge edge, int consumerNumber) {
 
+		//todo：只有 forward 的方式的情况下，pattern 才是 POINTWISE 的，否则均为 ALL_TO_ALL
 		final DistributionPattern pattern = edge.getDistributionPattern();
 		final IntermediateResultPartition[] sourcePartitions = source.getPartitions();
 
@@ -373,11 +374,24 @@ public class ExecutionVertex implements AccessExecutionVertex, Archiveable<Archi
 		// add the consumers to the source
 		// for now (until the receiver initiated handshake is in place), we need to register the
 		// edges as the execution graph
+		//todo：之前已经为 IntermediateResult 添加了 consumer，这里为 IntermediateResultPartition 添加 consumer，即关联到 ExecutionEdge 上
 		for (ExecutionEdge ee : edges) {
 			ee.getSource().addConsumer(ee, consumerNumber);
 		}
 	}
 
+	/**
+	 * 看这个方法之前，需要知道，ExecutionVertex 的 inputEdges 变量，是一个二维数据。它
+	 * 表示了这个 ExecutionVertex 上每一个 input 所包含的 ExecutionEdge 列表。
+	 * 即，如果 ExecutionVertex 有两个不同的输入：输入 A 和 B。其中输入 A 的 partition=1，
+	 * 输 入 B 的 partition=8 ， 那 么 这 个 二 维 数 组 inputEdges 如 下 ( 以 irp 代 替
+	 * IntermediateResultPartition)
+	 *
+	 * [ ExecutionEdge[ A.irp[0]] ]
+	 * [ ExecutionEdge[ B.irp[0], B.irp[1], ..., B.irp[7] ]
+	 *
+	 * 到这里为止，ExecutionJobGraph 就创建完成了。
+	 */
 	private ExecutionEdge[] connectAllToAll(IntermediateResultPartition[] sourcePartitions, int inputNumber) {
 		ExecutionEdge[] edges = new ExecutionEdge[sourcePartitions.length];
 

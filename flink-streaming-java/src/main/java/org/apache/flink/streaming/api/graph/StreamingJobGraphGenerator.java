@@ -346,6 +346,7 @@ public class StreamingJobGraphGenerator {
 
 		// iterate over a copy of the values, because this map gets concurrently modified
 		for (OperatorChainInfo info : initialEntryPoints) {
+			//todo：从source开始建立node chains
 			createChain(
 					info.getStartNodeId(),
 					1,  // operators start at position 1 because 0 is for chained source inputs
@@ -354,6 +355,9 @@ public class StreamingJobGraphGenerator {
 		}
 	}
 
+	/**
+	 *todo：构建node chains，返回当前节点的物理出边，startNodeId!=currentNodeId,说明currentNode是chain中的子节点
+	 */
 	private List<StreamEdge> createChain(
 			final Integer currentNodeId,
 			final int chainIndex,
@@ -363,6 +367,7 @@ public class StreamingJobGraphGenerator {
 		Integer startNodeId = chainInfo.getStartNodeId();
 		if (!builtVertices.contains(startNodeId)) {
 
+			//todo：过渡用的出边集合, 用来生成最终的 JobEdge, 注意不包括 chain 内部的边
 			List<StreamEdge> transitiveOutEdges = new ArrayList<StreamEdge>();
 
 			List<StreamEdge> chainableOutputs = new ArrayList<StreamEdge>();
@@ -370,6 +375,7 @@ public class StreamingJobGraphGenerator {
 
 			StreamNode currentNode = streamGraph.getStreamNode(currentNodeId);
 
+			//todo:将当前节点的出边分成 chainable 和 nonChainable 两类
 			for (StreamEdge outEdge : currentNode.getOutEdges()) {
 				if (isChainable(outEdge, streamGraph)) {
 					chainableOutputs.add(outEdge);
@@ -383,6 +389,7 @@ public class StreamingJobGraphGenerator {
 						createChain(chainable.getTargetId(), chainIndex + 1, chainInfo, chainEntryPoints));
 			}
 
+			//todo:递归调用
 			for (StreamEdge nonChainable : nonChainableOutputs) {
 				transitiveOutEdges.add(nonChainable);
 				createChain(
@@ -394,6 +401,7 @@ public class StreamingJobGraphGenerator {
 						chainEntryPoints);
 			}
 
+			//todo：生成当前节点的显示名，如："Keyed Aggregation -> Sink: Unnamed"
 			chainedNames.put(currentNodeId, createChainedName(currentNodeId, chainableOutputs, Optional.ofNullable(chainEntryPoints.get(currentNodeId))));
 			chainedMinResources.put(currentNodeId, createChainedMinResources(currentNodeId, chainableOutputs));
 			chainedPreferredResources.put(currentNodeId, createChainedPreferredResources(currentNodeId, chainableOutputs));
@@ -408,31 +416,43 @@ public class StreamingJobGraphGenerator {
 				getOrCreateFormatContainer(startNodeId).addOutputFormat(currentOperatorId, currentNode.getOutputFormat());
 			}
 
+			/**todo：如果当前节点是起始节点, 则直接创建 JobVertex 并返回 StreamConfig, 否则先创建一个空的 StreamConfig
+			 *  createJobVertex 函数就是根据 StreamNode 创建对应的 JobVertex, 并返回了空的*/
+
 			StreamConfig config = currentNodeId.equals(startNodeId)
 					? createJobVertex(startNodeId, chainInfo)
 					: new StreamConfig(new Configuration());
 
+			//todo：设置JobVertex的 StreamConfig, 基本上是序列化 StreamNode 中的配置到StreamConfig中，其中包括 序列化器, StreamOperator, Checkpoint 等相关配置
 			setVertexConfig(currentNodeId, config, chainableOutputs, nonChainableOutputs, chainInfo.getChainedSources());
 
 			if (currentNodeId.equals(startNodeId)) {
 
+				//todo：如果是chain的起始节点（不是chain中的节点，也会被标记成chain start）
 				config.setChainStart();
 				config.setChainIndex(chainIndex);
 				config.setOperatorName(streamGraph.getStreamNode(currentNodeId).getOperatorName());
 
+				//todo：将当前节点（headOfChain）与所有出边相连
 				for (StreamEdge edge : transitiveOutEdges) {
+					//todo：通过 StreamEdge 构建出 JobEdge，创建 IntermediateDataSet，用来将 JobVertex 和 JobEdge 相连
 					connect(startNodeId, edge);
 				}
 
+				//todo：把物理出边写入配置, 部署时会用到
 				config.setOutEdgesInOrder(transitiveOutEdges);
+				//todo:将chain中所有子节点的 StreamConfig写入到 headOfChain节点的CHAINED_TASK_CONFIG配置中
 				config.setTransitiveChainedTaskConfigs(chainedConfigs.get(startNodeId));
 
 			} else {
+				//todo:如果是chain中的子节点
 				chainedConfigs.computeIfAbsent(startNodeId, k -> new HashMap<Integer, StreamConfig>());
+
 
 				config.setChainIndex(chainIndex);
 				StreamNode node = streamGraph.getStreamNode(currentNodeId);
 				config.setOperatorName(node.getOperatorName());
+				//todo：将当前节点的 StreamConfig 添加到该 chain 的 config 集合中
 				chainedConfigs.get(startNodeId).put(currentNodeId, config);
 			}
 
@@ -441,6 +461,7 @@ public class StreamingJobGraphGenerator {
 			if (chainableOutputs.isEmpty()) {
 				config.setChainEnd();
 			}
+			//todo：返回连往 chain 外部的出边集合
 			return transitiveOutEdges;
 
 		} else {

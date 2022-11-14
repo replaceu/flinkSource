@@ -814,9 +814,11 @@ public class ExecutionGraph implements AccessExecutionGraph {
 			tasks.size(),
 			intermediateResults.size());
 
+		//todo：ExecutionJobVertex是执行图的节点
 		final ArrayList<ExecutionJobVertex> newExecJobVertices = new ArrayList<>(topologiallySorted.size());
 		final long createTimestamp = System.currentTimeMillis();
 
+		//todo：遍历jobVertex
 		for (JobVertex jobVertex : topologiallySorted) {
 
 			if (jobVertex.isInputVertex() && !jobVertex.isStoppable()) {
@@ -824,6 +826,7 @@ public class ExecutionGraph implements AccessExecutionGraph {
 			}
 
 			// create the execution job vertex and attach it to the graph
+			//todo：实例化执行图节点，根据每⼀个 job vertex，创建对应的 ExecutionVertex
 			ExecutionJobVertex ejv = new ExecutionJobVertex(
 					this,
 					jobVertex,
@@ -833,6 +836,7 @@ public class ExecutionGraph implements AccessExecutionGraph {
 					globalModVersion,
 					createTimestamp);
 
+			//todo：将创建的 ExecutionJobVertex 与前置的 IntermediateResult 连接起来
 			ejv.connectToPredecessors(this.intermediateResults);
 
 			ExecutionJobVertex previousTask = this.tasks.putIfAbsent(jobVertex.getID(), ejv);
@@ -849,8 +853,10 @@ public class ExecutionGraph implements AccessExecutionGraph {
 				}
 			}
 
+			//todo：节点总数量需要加上当前执行图节点的并行度，因为执行图是作业图的并行化版本，并行化就体现在并行度上，⼀个并行度对应⼀个节点
 			this.verticesInCreationOrder.add(ejv);
 			this.numVerticesTotal += ejv.getParallelism();
+			//todo：将当前执行图节点加到执行图中
 			newExecJobVertices.add(ejv);
 		}
 

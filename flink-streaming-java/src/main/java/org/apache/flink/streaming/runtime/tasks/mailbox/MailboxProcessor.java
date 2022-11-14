@@ -175,10 +175,12 @@ public class MailboxProcessor implements Closeable {
 			localMailbox.isMailboxThread(),
 			"Method must be executed by declared mailbox thread!");
 
+		//todo：断言，要求状态必须是open，否则报错
 		assert localMailbox.getState() == TaskMailbox.State.OPEN : "Mailbox must be opened!";
 
 		final MailboxController defaultActionContext = new MailboxController(this);
 
+		//todo：邮箱里有邮件，就进行处理。邮件就是类似于 map 之类的⼀任务
 		while (isMailboxLoopRunning()) {
 			// The blocking `processMail` call will not return until default action is available.
 			processMail(localMailbox, false);

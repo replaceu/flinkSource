@@ -499,7 +499,9 @@ public class DefaultScheduler extends SchedulerBase implements SchedulerOperatio
 
 	private void deployTaskSafe(final ExecutionVertexID executionVertexId) {
 		try {
+			//todo:通过执行图的节点 ID 获取执行图的节点
 			final ExecutionVertex executionVertex = getExecutionVertex(executionVertexId);
+			// todo:deploy 方法用来部署执行图节点
 			executionVertexOperations.deploy(executionVertex);
 		} catch (Throwable e) {
 			handleTaskDeploymentFailure(executionVertexId, e);
