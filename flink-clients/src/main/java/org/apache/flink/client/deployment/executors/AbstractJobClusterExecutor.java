@@ -58,8 +58,19 @@ public class AbstractJobClusterExecutor<ClusterID, ClientFactory extends Cluster
 	}
 
 	//todo：yarn-per-job提交流程
+
+	/**
+	 *
+	 * @param pipeline the {@link Pipeline} to execute (StreamGraph)
+	 * @param configuration the {@link Configuration} with the required execution parameters
+	 * @param userCodeClassloader the {@link ClassLoader} to deserialize usercode
+	 * @return
+	 * @throws Exception
+	 */
 	@Override
 	public CompletableFuture<JobClient> execute(@Nonnull final Pipeline pipeline, @Nonnull final Configuration configuration, @Nonnull final ClassLoader userCodeClassloader) throws Exception {
+		//todo：得到JobGraph
+		//todo：主要做了三件事情，StreamNode 转成 JobVertex/StreamEdge 转成 JobEdge/JobEdge和JobVertex之间创建IntermediateDataSet来连接。
 		final JobGraph jobGraph = PipelineExecutorUtils.getJobGraph(pipeline, configuration);
 
 		//todo：创建并启动yarn客户端

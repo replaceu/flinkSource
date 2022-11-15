@@ -33,6 +33,8 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * gets converted to a connection between two job vertices (due to
  * chaining/optimization).
  */
+
+//todo：表示连接两个 StreamNode 的边。
 @Internal
 public class StreamEdge implements Serializable {
 
@@ -74,7 +76,9 @@ public class StreamEdge implements Serializable {
 	private long bufferTimeout;
 
 	public StreamEdge(
+		//来源的顶点
 		StreamNode sourceVertex,
+		//目标的顶点
 		StreamNode targetVertex,
 		int typeNumber,
 		StreamPartitioner<?> outputPartitioner,

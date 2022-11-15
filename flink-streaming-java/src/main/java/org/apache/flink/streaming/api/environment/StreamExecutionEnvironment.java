@@ -1939,6 +1939,7 @@ public class StreamExecutionEnvironment {
 		//todo：选择合适的executor提交任务
 		CompletableFuture<JobClient> jobClientFuture = executorFactory
 			.getExecutor(configuration)
+			//todo：执行任务,StreamGraph实现了Pipeline
 			.execute(streamGraph, configuration, userClassloader);
 
 		try {
@@ -1996,6 +1997,7 @@ public class StreamExecutionEnvironment {
 	 */
 	@Internal
 	public StreamGraph getStreamGraph(String jobName, boolean clearTransformations) {
+		//todo：streamGraph的生成
 		StreamGraph streamGraph = getStreamGraphGenerator().setJobName(jobName).generate();
 		if (clearTransformations) {
 			this.transformations.clear();

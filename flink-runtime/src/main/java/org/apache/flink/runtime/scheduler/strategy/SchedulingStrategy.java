@@ -35,6 +35,7 @@ public interface SchedulingStrategy {
 	/**
 	 * Called when the scheduling is started (initial scheduling operation).
 	 */
+	//todo:调度入口，触发调度器的调度行为
 	void startScheduling();
 
 	/**
@@ -42,6 +43,8 @@ public interface SchedulingStrategy {
 	 *
 	 * @param verticesToRestart The tasks need to be restarted
 	 */
+
+	//todo：重启执行失败的 Task，一般是 Task 执行异常导致
 	void restartTasks(Set<ExecutionVertexID> verticesToRestart);
 
 	/**
@@ -50,6 +53,8 @@ public interface SchedulingStrategy {
 	 * @param executionVertexId The id of the task
 	 * @param executionState The new state of the execution
 	 */
+
+	//todo：当 Execution 改变状态时调用
 	void onExecutionStateChange(ExecutionVertexID executionVertexId, ExecutionState executionState);
 
 	/**
@@ -57,5 +62,6 @@ public interface SchedulingStrategy {
 	 *
 	 * @param resultPartitionId The id of the result partition
 	 */
+	//todo:当 IntermediateResultPartition 中的数据可以消费时调用
 	void onPartitionConsumable(IntermediateResultPartitionID resultPartitionId);
 }

@@ -38,6 +38,7 @@ public class StreamMap<IN, OUT>
 
 	@Override
 	public void processElement(StreamRecord<IN> element) throws Exception {
+		//todo：userFunction.map()就是用户定义的MapFunction里的map方法，数据经过用户定义的map算子，通过采集器往下游发送
 		output.collect(element.replace(userFunction.map(element.getValue())));
 	}
 }

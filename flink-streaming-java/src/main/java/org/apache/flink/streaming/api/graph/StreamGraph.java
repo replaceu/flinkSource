@@ -76,7 +76,15 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * Class representing the streaming topology. It contains all the information
  * necessary to build the jobgraph for the execution.
  *
+ * todo:Flink 中的执行图可以分成四层：StreamGraph -> JobGraph -> ExecutionGraph -> 物理执行图
+ *  StreamGraph：是根据用户通过 Stream API 编写的代码生成的最初的图。用来表示程序的拓扑结构。
+ *  JobGraph：StreamGraph 经过优化后生成了 JobGraph，提交给 JobManager 的数据结构。主要的优化为，将多个符合条件的节点 chain 在一起作为一个节点，这样可以减少数据在节点之间流动所需要的序列化/反序列化/传输消耗。
+ *  ExecutionGraph：JobManager 根据 JobGraph 生成 ExecutionGraph。ExecutionGraph 是JobGraph 的并行化版本，是调度层最核心的数据结构。
+ *  物理执行图 ：JobManager根据ExecutionGraph对Job进行调度后,在各个TaskManager上部署 Task 后形成的“图”，并不是一个具体的数据结构。
+ *
  */
+
+
 @Internal
 public class StreamGraph implements Pipeline {
 
@@ -105,6 +113,7 @@ public class StreamGraph implements Pipeline {
 	/** Flag to indicate whether to put all vertices into the same slot sharing group by default. */
 	private boolean allVerticesInSameSlotSharingGroupByDefault = true;
 
+	//todo：StreamNode用来代表operator的类，并具有所有相关的属性，如并发度，入边，出边等
 	private Map<Integer, StreamNode> streamNodes;
 	private Set<Integer> sources;
 	private Set<Integer> sinks;

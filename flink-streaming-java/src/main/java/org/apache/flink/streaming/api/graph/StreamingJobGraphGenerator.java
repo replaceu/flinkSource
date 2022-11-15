@@ -170,15 +170,13 @@ public class StreamingJobGraphGenerator {
 		preValidate();
 
 		// make sure that all vertices start immediately
-		//todo：streaming 模式下，调度模式是所有节点（vertices）一起启动
+		//todo：streaming模式下，调度模式是所有节点（vertices）一起启动
 		jobGraph.setScheduleMode(streamGraph.getScheduleMode());
 		jobGraph.enableApproximateLocalRecovery(streamGraph.getCheckpointConfig().isApproximateLocalRecoveryEnabled());
 
 		// Generate deterministic hashes for the nodes in order to identify them across
 		// submission iff they didn't change.
-		/*todo：广度优先遍历 StreamGraph 并且为每个 SteamNode 生成 hash id，
-		*   保证如果提交的拓扑没有改变，则每次生成的 hash 都是一样的
-		 */
+		//todo：广度优先遍历 StreamGraph 并且为每个 SteamNode 生成 hashId，保证如果提交的拓扑没有改变，则每次生成的 hash 都是一样的
 		Map<Integer, byte[]> hashes = defaultStreamGraphHasher.traverseStreamGraphAndGenerateHashes(streamGraph);
 
 		// Generate legacy version hashes for backwards compatibility
@@ -207,7 +205,7 @@ public class StreamingJobGraphGenerator {
 			id -> streamGraph.getStreamNode(id).getManagedMemoryOperatorScopeUseCaseWeights(),
 			id -> streamGraph.getStreamNode(id).getManagedMemorySlotScopeUseCases());
 
-		//todo：配置 checkpoint
+		//todo：配置checkpoint
 		configureCheckpointing();
 
 		jobGraph.setSavepointRestoreSettings(streamGraph.getSavepointRestoreSettings());

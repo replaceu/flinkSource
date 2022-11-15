@@ -64,6 +64,7 @@ public abstract class AbstractTwoInputTransformationTranslator<IN1, IN2, OUT, OP
 		final int transformationId = transformation.getId();
 		final ExecutionConfig executionConfig = streamGraph.getExecutionConfig();
 
+		//todo：添加StreamNode
 		streamGraph.addCoOperator(
 				transformationId,
 				slotSharingGroup,
@@ -92,6 +93,7 @@ public abstract class AbstractTwoInputTransformationTranslator<IN1, IN2, OUT, OP
 		streamGraph.setMaxParallelism(transformationId, transformation.getMaxParallelism());
 
 		for (Integer inputId: context.getStreamNodeIds(firstInputTransformation)) {
+			//todo：添加StreamEdge
 			streamGraph.addEdge(inputId, transformationId, 1);
 		}
 

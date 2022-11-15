@@ -69,6 +69,14 @@ import java.util.concurrent.CompletableFuture;
  * all invocations will originate from a thread in the {@link ComponentMainThreadExecutor}, which
  * will be passed via {@link #setMainThreadExecutor(ComponentMainThreadExecutor)}.
  */
+
+/**
+ * 调度器的作用：
+ * 1.作业的生命周期管理，如作业的发布、挂起、取消
+ * 2.作业执行资源的申请、分配、释放
+ * 3.作业的状态管理，作业发布过程中的状态变化和作业异常时的 FailOver 等
+ * 4.作业的信息提供，对外提供作业的详细信息
+ */
 public interface SchedulerNG {
 
 	void setMainThreadExecutor(ComponentMainThreadExecutor mainThreadExecutor);

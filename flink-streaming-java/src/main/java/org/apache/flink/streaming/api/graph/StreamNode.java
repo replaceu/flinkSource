@@ -53,6 +53,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 public class StreamNode {
 
 	private final int id;
+	//并行度
 	private int parallelism;
 	/**
 	 * Maximum parallelism for this stream node. The maximum parallelism is the upper limit for
@@ -74,7 +75,9 @@ public class StreamNode {
 	private TypeSerializer<?>[] typeSerializersIn = new TypeSerializer[0];
 	private TypeSerializer<?> typeSerializerOut;
 
+	//入边
 	private List<StreamEdge> inEdges = new ArrayList<StreamEdge>();
+	//出边
 	private List<StreamEdge> outEdges = new ArrayList<StreamEdge>();
 
 	private final Class<? extends AbstractInvokable> jobVertexClass;

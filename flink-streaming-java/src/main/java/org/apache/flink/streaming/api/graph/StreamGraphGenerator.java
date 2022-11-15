@@ -269,6 +269,7 @@ public class StreamGraphGenerator {
 		return builtStreamGraph;
 	}
 
+	//todo：配置StreamGraph的信息
 	private void configureStreamGraph(final StreamGraph graph) {
 		checkNotNull(graph);
 
@@ -277,6 +278,7 @@ public class StreamGraphGenerator {
 		graph.setTimeCharacteristic(timeCharacteristic);
 		graph.setJobName(jobName);
 
+		//todo：是否是需要批量处理的模式
 		if (shouldExecuteInBatchMode) {
 
 			if (checkpointConfig.isCheckpointingEnabled()) {
@@ -362,7 +364,7 @@ public class StreamGraphGenerator {
 	 */
 	/**
 	 * todo:对每个 transformation 进行转换，转换成 StreamGraph 中的 StreamNode 和 StreamEdge
-	 *  返回值为该 transform 的 id 集合，通常大小为 1 个（除 FeedbackTransformation）
+	 *  返回值为该 transform 的 id 集合，通常大小为1个（除 FeedbackTransformation）
 	 */
 	private Collection<Integer> transform(Transformation<?> transform) {
 		if (alreadyTransformed.containsKey(transform)) {
@@ -371,6 +373,7 @@ public class StreamGraphGenerator {
 
 		LOG.debug("Transforming " + transform);
 
+		//todo:如果转换的最大并行度小于等于0
 		if (transform.getMaxParallelism() <= 0) {
 
 			// if the max parallelism hasn't been set, then first use the job wide max parallelism
@@ -386,6 +389,7 @@ public class StreamGraphGenerator {
 
 		@SuppressWarnings("unchecked")
 		final TransformationTranslator<?, Transformation<?>> translator =
+			//todo：找到转换的class类的类型
 				(TransformationTranslator<?, Transformation<?>>) translatorMap.get(transform.getClass());
 
 		Collection<Integer> transformedIds;

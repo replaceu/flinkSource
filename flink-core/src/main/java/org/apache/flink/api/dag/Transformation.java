@@ -115,14 +115,17 @@ public abstract class Transformation<T> {
 
 	protected final int id;
 
+	//名称
 	protected String name;
 
+	//类型信息
 	protected TypeInformation<T> outputType;
 	// This is used to handle MissingTypeInfo. As long as the outputType has not been queried
 	// it can still be changed using setOutputType(). Afterwards an exception is thrown when
 	// trying to change the output type.
 	protected boolean typeUsed;
 
+	//并行度
 	private int parallelism;
 
 	/**
